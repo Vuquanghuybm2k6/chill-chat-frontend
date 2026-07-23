@@ -1,13 +1,13 @@
 import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:3000', {
+const socket = io({
   auth: { token: localStorage.getItem('token') },
   autoConnect: false
 })
 
 export const connectSocket = () => {
   const token = localStorage.getItem('token')
-  if (!token) return
+  if (!token || socket.connected) return
   socket.auth = { token }
   socket.connect()
 }
