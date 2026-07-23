@@ -6,6 +6,8 @@ import { ChatProvider } from '../context/ChatContext'
 import UserHeader from './Sidebar/UserHeader'
 import SearchBar from './Sidebar/SearchBar'
 import ConversationList from './Sidebar/ConversationList'
+import ChatArea from './Chat/ChatArea'
+import ContactList from './Contacts/ContactList'
 
 const { Sider, Content } = Layout
 
@@ -40,20 +42,25 @@ const MainLayout = () => {
           />
           <div style={{ flex: 1, overflow: 'auto' }}>
             {tabKey === 'messages' && <ConversationList />}
-            {tabKey === 'contacts' && <div style={{ padding: 20, textAlign: 'center', color: '#999' }}>Danh bạ</div>}
+            {tabKey === 'contacts' && <ContactList />}
           </div>
         </Sider>
         <Layout>
-          <Content style={{ background: '#f5f5f5', display: 'flex', flexDirection: 'column' }}>
+          <Content style={{ background: '#f0f0f0', display: 'flex', flexDirection: 'column' }}>
             <Routes>
               <Route index element={<EmptyChat />} />
-              <Route path="chat/:roomChatId" element={<div style={{ padding: 20 }}>Chat Area</div>} />
+              <Route path="chat/:roomChatId" element={<ChatAreaWrapper />} />
             </Routes>
           </Content>
         </Layout>
       </Layout>
     </ChatProvider>
   )
+}
+
+const ChatAreaWrapper = () => {
+  const params = { roomChatId: window.location.pathname.split('/chat/')[1] }
+  return <ChatArea roomChatId={params.roomChatId} />
 }
 
 export default MainLayout

@@ -1,0 +1,47 @@
+import { useEffect } from 'react'
+import { List, Avatar, Badge, Button, Typography } from 'antd'
+import { UserOutlined, MessageOutlined, StopOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { useChat } from '../../context/ChatContext'
+import socket from '../../socket'
+
+const { Text } = Typography
+
+const FriendList = () => {
+  const { friends, fetchFriends } = useChat()
+  const navigate = useNavigate()
+
+  useEffect(() => { fetchFriends() }, [fetchFriends])
+
+  const handleUnfriend = (userId) => {
+    socket.emit('CLIENT_UNFRIEND', userId)
+  }
+
+  return (
+    <List
+      dataSource={friends}
+      locale={{ emptyText: 'Chưa có bạn bè' }}
+      renderItem={item => (
+        <List.Item style={{ padding: '12px 16px' }}>
+          <List.Item.Meta
+            avatar={
+              <Badge dot color={item.statusOnline === 'online' ? '#0AC286' : '#ccc'} offset={[-2, 32]}>
+                <Avatar size={44} src={item.avatar} icon={<UserOutlined />} />
+              </Badge>
+            }
+            title={<Text strong>{item.fullName}</Text>}
+            description={<Text type="secondary">{item.statusOnline === 'online' ? 'Đang hoạt động' : 'Ngoại tuyến'}</Text>}
+          />
+          <div style={{ display: 'flex', gap: 4 }}>
+            <Button icon={<MessageOutlined />} onClick={() => navigate(`/chat/${item.roomChatId}`)}>
+              Nhắn tin
+            </Button>
+            <Button icon={<StopOutlined />} danger onClick={() => handleUnfriend(item.id)} />
+          </div>
+        </List.Item>
+      )}
+    />
+  )
+}
+
+export default FriendList
