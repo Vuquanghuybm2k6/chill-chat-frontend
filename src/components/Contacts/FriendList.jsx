@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { List, Avatar, Badge, Button, Typography, Modal } from 'antd'
 import { UserOutlined, MessageOutlined, StopOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
@@ -7,11 +7,16 @@ import socket from '../../socket'
 
 const { Text } = Typography
 
-const FriendList = () => {
+const FriendList = ({ search }) => {
   const { friends, fetchFriends } = useChat()
   const navigate = useNavigate()
 
   useEffect(() => { fetchFriends() }, [fetchFriends])
+
+  const filtered = useMemo(() => {
+    if (!search) return friends
+    return friends.filter(f => f.fullName?.toLowerCase().includes(search.toLowerCase()))
+  }, [friends, search])
 
   const handleUnfriend = (item) => {
     Modal.confirm({
@@ -27,8 +32,8 @@ const FriendList = () => {
 
   return (
     <List
-      dataSource={friends}
-      locale={{ emptyText: 'Chưa có bạn bè' }}
+      dataSource={filtered}
+      locale={{ emptyText: search ? 'Không tìm thấy kết quả' : 'Chưa có bạn bè' }}
       renderItem={item => (
         <List.Item style={{ padding: '12px 16px' }}>
           <List.Item.Meta

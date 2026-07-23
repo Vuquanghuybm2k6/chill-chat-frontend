@@ -16,6 +16,7 @@ export const ChatProvider = ({ children }) => {
   const [requestList, setRequestList] = useState([])
   const [acceptList, setAcceptList] = useState([])
   const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const addMessage = useCallback((roomId, message) => {
     setMessages(prev => ({ ...prev, [roomId]: [...(prev[roomId] || []), message] }))
@@ -58,28 +59,13 @@ export const ChatProvider = ({ children }) => {
       addMessage(data.room_chat_id, data)
     })
 
-    socket.on('SERVER_RETURN_LENGTH_ACCEPT_FRIEND', () => {
-      fetchAcceptList()
-    })
-
-    socket.on('SERVER_RETURN_INFO_ACCEPT_FRIEND', () => {
-      fetchAcceptList()
-    })
-
-    socket.on('SERVER_RETURN_USER_ID_CANCEL_FRIEND', () => {
-      fetchAcceptList()
-      fetchContacts()
-    })
-
-    socket.on('SERVER_RETURN_UNFRIEND', () => {
-      fetchFriends()
-      fetchConversations()
-    })
-
+    socket.on('SERVER_RETURN_LENGTH_ACCEPT_FRIEND', () => { fetchAcceptList() })
+    socket.on('SERVER_RETURN_INFO_ACCEPT_FRIEND', () => { fetchAcceptList() })
+    socket.on('SERVER_RETURN_USER_ID_CANCEL_FRIEND', () => { fetchAcceptList(); fetchContacts() })
+    socket.on('SERVER_RETURN_UNFRIEND', () => { fetchFriends(); fetchConversations() })
     socket.on('SERVER_RETURN_USER_ONLINE', (userId) => {
       setFriends(prev => prev.map(f => f.id === userId ? { ...f, statusOnline: 'online' } : f))
     })
-
     socket.on('SERVER_RETURN_USER_OFFLINE', (userId) => {
       setFriends(prev => prev.map(f => f.id === userId ? { ...f, statusOnline: 'offline' } : f))
     })
@@ -95,6 +81,18 @@ export const ChatProvider = ({ children }) => {
     }
   }, [addMessage, fetchAcceptList, fetchContacts, fetchFriends, fetchConversations])
 
+  useEffect(() => {
+    if (socket.connected) {
+      fetchFriends()
+      fetchConversations()
+    }
+    socket.on('connect', () => {
+      fetchFriends()
+      fetchConversations()
+    })
+    return () => { socket.off('connect') }
+  }, [fetchFriends, fetchConversations])
+
   return (
     <ChatContext.Provider value={{
       activeTab, setActiveTab,
@@ -106,6 +104,7 @@ export const ChatProvider = ({ children }) => {
       requestList, setRequestList,
       acceptList, setAcceptList,
       loading, setLoading,
+      searchTerm, setSearchTerm,
       fetchFriends, fetchContacts, fetchRequests, fetchAcceptList,
       fetchConversations, fetchMessages
     }}>

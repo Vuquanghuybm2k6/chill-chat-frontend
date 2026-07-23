@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { List, Avatar, Button, Typography, Space, message as antMsg } from 'antd'
 import { UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { useChat } from '../../context/ChatContext'
@@ -6,10 +6,15 @@ import socket from '../../socket'
 
 const { Text } = Typography
 
-const AcceptList = () => {
+const AcceptList = ({ search }) => {
   const { acceptList, fetchAcceptList } = useChat()
 
   useEffect(() => { fetchAcceptList() }, [fetchAcceptList])
+
+  const filtered = useMemo(() => {
+    if (!search) return acceptList
+    return acceptList.filter(u => u.fullName?.toLowerCase().includes(search.toLowerCase()))
+  }, [acceptList, search])
 
   const handleAccept = (userId, fullName) => {
     socket.emit('CLIENT_ACCEPT_FRIEND', userId)
@@ -22,8 +27,8 @@ const AcceptList = () => {
 
   return (
     <List
-      dataSource={acceptList}
-      locale={{ emptyText: 'Không có lời mời nào' }}
+      dataSource={filtered}
+      locale={{ emptyText: search ? 'Không tìm thấy kết quả' : 'Không có lời mời nào' }}
       renderItem={item => (
         <List.Item style={{ padding: '12px 16px' }}>
           <List.Item.Meta

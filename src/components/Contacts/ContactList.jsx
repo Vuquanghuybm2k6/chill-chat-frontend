@@ -6,14 +6,14 @@ import NotFriendList from './NotFriendList'
 import RequestList from './RequestList'
 import AcceptList from './AcceptList'
 
-const ContactList = () => {
+const ContactList = ({ search }) => {
   const [subTab, setSubTab] = useState('friends')
 
   const items = [
-    { key: 'friends', label: <span><TeamOutlined /> Bạn bè</span>, children: <FriendList /> },
-    { key: 'discover', label: <span><UserOutlined /> Khám phá</span>, children: <NotFriendList /> },
-    { key: 'requests', label: <span><SendOutlined /> Đã gửi</span>, children: <RequestList /> },
-    { key: 'accept', label: <span><InboxOutlined /> Lời mời</span>, children: <AcceptList /> }
+    { key: 'friends', label: <span><TeamOutlined /> Bạn bè</span>, children: <FriendList search={search} /> },
+    { key: 'discover', label: <span><UserOutlined /> Khám phá</span>, children: <NotFriendList search={search} /> },
+    { key: 'requests', label: <span><SendOutlined /> Đã gửi</span>, children: <RequestList search={search} /> },
+    { key: 'accept', label: <span><InboxOutlined /> Lời mời</span>, children: <AcceptList search={search} /> }
   ]
 
   return (

@@ -1,5 +1,5 @@
-import { Avatar, Typography, Badge, Button, Dropdown, Space } from 'antd'
-import { UserOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons'
+import { Avatar, Typography, Badge, Button, Dropdown, Space, Modal } from 'antd'
+import { UserOutlined, SettingOutlined, LogoutOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
@@ -9,15 +9,28 @@ const UserHeader = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
+  const handleLogout = () => {
+    Modal.confirm({
+      title: 'Đăng xuất',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Bạn có chắc muốn đăng xuất?',
+      okText: 'Đăng xuất',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true },
+      onOk: async () => { await logout(); navigate('/login') }
+    })
+  }
+
+  const handleMenuClick = ({ key }) => {
+    if (key === 'profile') navigate('/user/info')
+    if (key === 'logout') handleLogout()
+  }
+
   const menuItems = [
     { key: 'profile', icon: <UserOutlined />, label: 'Thông tin cá nhân' },
+    { type: 'divider' },
     { key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất', danger: true }
   ]
-
-  const handleMenuClick = async ({ key }) => {
-    if (key === 'profile') navigate('/user/info')
-    if (key === 'logout') { await logout(); navigate('/login') }
-  }
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
