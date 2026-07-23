@@ -1,49 +1,64 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { Card, Form, Input, Button, Typography, message as antMsg } from 'antd'
+import { MailOutlined, LockOutlined, UserOutlined, PhoneOutlined, MessageOutlined } from '@ant-design/icons'
 import { useAuth } from '../context/AuthContext'
 
+const { Title, Text } = Typography
+
 const Register = () => {
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', phone: '' })
-  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { register } = useAuth()
   const navigate = useNavigate()
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (values) => {
+    setLoading(true)
     try {
-      await register(form)
+      await register({ fullName: values.fullName, email: values.email, phone: values.phone, password: values.password })
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng kí thất bại')
+      antMsg.error(err.response?.data?.message || 'Đăng kí thất bại')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '50px auto', padding: 20 }}>
-      <h1>Đăng kí tài khoản</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 15 }}>
-          <label>Họ tên</label>
-          <input name="fullName" value={form.fullName} onChange={handleChange} required style={{ width: '100%', padding: 8 }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0068FF 0%, #00A3FF 100%)' }}>
+      <Card style={{ width: 420, borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }} styles={{ body: { padding: '40px 32px' } }}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ width: 64, height: 64, background: '#0068FF', borderRadius: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <MessageOutlined style={{ fontSize: 32, color: '#fff' }} />
+          </div>
+          <Title level={3} style={{ margin: 0 }}>Đăng kí tài khoản</Title>
+          <Text type="secondary">Tham gia cùng bạn bè của bạn</Text>
         </div>
-        <div style={{ marginBottom: 15 }}>
-          <label>Email</label>
-          <input name="email" type="email" value={form.email} onChange={handleChange} required style={{ width: '100%', padding: 8 }} />
+
+        <Form layout="vertical" onFinish={handleSubmit} size="large">
+          <Form.Item name="fullName" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}>
+            <Input prefix={<UserOutlined />} placeholder="Họ tên" />
+          </Form.Item>
+          <Form.Item name="email" rules={[{ required: true, message: 'Vui lòng nhập email' }, { type: 'email', message: 'Email không hợp lệ' }]}>
+            <Input prefix={<MailOutlined />} placeholder="Email" />
+          </Form.Item>
+          <Form.Item name="phone">
+            <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại (không bắt buộc)" />
+          </Form.Item>
+          <Form.Item name="password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }, { min: 6, message: 'Mật khẩu ít nhất 6 ký tự' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
+          </Form.Item>
+          <Form.Item style={{ marginBottom: 12 }}>
+            <Button type="primary" htmlType="submit" loading={loading} block style={{ height: 44, borderRadius: 8 }}>
+              Đăng kí
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <div style={{ textAlign: 'center' }}>
+          <Text type="secondary">Đã có tài khoản? </Text>
+          <Link to="/login" style={{ color: '#0068FF' }}>Đăng nhập</Link>
         </div>
-        <div style={{ marginBottom: 15 }}>
-          <label>Số điện thoại</label>
-          <input name="phone" value={form.phone} onChange={handleChange} style={{ width: '100%', padding: 8 }} />
-        </div>
-        <div style={{ marginBottom: 15 }}>
-          <label>Mật khẩu</label>
-          <input name="password" type="password" value={form.password} onChange={handleChange} required style={{ width: '100%', padding: 8 }} />
-        </div>
-        <button type="submit" style={{ padding: '10px 20px' }}>Đăng kí</button>
-      </form>
-      <p style={{ marginTop: 15 }}><Link to="/login">Đã có tài khoản? Đăng nhập</Link></p>
+      </Card>
     </div>
   )
 }
