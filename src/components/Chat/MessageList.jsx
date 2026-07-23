@@ -1,5 +1,6 @@
 import { useEffect, useRef, useMemo } from 'react'
-import { Spin, Empty, Typography } from 'antd'
+import { Spin, Typography } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
 import MessageBubble from './MessageBubble'
 import { useChat } from '../../context/ChatContext'
 
@@ -34,30 +35,32 @@ const MessageList = ({ roomChatId }) => {
     const d = new Date(t)
     const now = new Date()
     if (d.toDateString() === now.toDateString()) return 'Hôm nay'
-    const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1)
     if (d.toDateString() === yesterday.toDateString()) return 'Hôm qua'
     return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
   }
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', padding: '12px 0', background: '#f0f0f0' }}>
+    <div style={{ flex: 1, overflow: 'auto', padding: '8px 0', background: '#EDEDED' }}>
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 40 }}><Spin /></div>
+        <div style={{ textAlign: 'center', padding: 40 }}><Spin indicator={<LoadingOutlined spin />} /></div>
       ) : list.length === 0 ? (
-        <Empty description="Chưa có tin nhắn" style={{ marginTop: 60 }} />
+        <div style={{ textAlign: 'center', padding: 60, color: '#B0B0B0' }}>
+          <Text style={{ fontSize: 14 }}>Chưa có tin nhắn</Text>
+          <div style={{ fontSize: 13, color: '#ccc', marginTop: 4 }}>Hãy bắt đầu cuộc trò chuyện</div>
+        </div>
       ) : (
         grouped.map((item, idx) => {
           if (item.type === 'date') {
             return (
-              <div key={`date-${idx}`} style={{ textAlign: 'center', margin: '12px 0' }}>
-                <Text style={{ fontSize: 12, color: '#999', background: '#e0e0e0', padding: '2px 12px', borderRadius: 10 }}>
+              <div key={`date-${idx}`} style={{ textAlign: 'center', margin: '10px 0' }}>
+                <Text style={{ fontSize: 12, color: '#999', background: '#E0E0E0', padding: '2px 14px', borderRadius: 10, lineHeight: '20px', display: 'inline-block' }}>
                   {formatDate(item.date)}
                 </Text>
               </div>
             )
           }
-          return <MessageBubble key={item.data._id || idx} message={item.data} />
+          return <MessageBubble key={item.data._id || `msg-${idx}`} message={item.data} />
         })
       )}
       <div ref={bottomRef} />

@@ -3,13 +3,10 @@ import ChatHeader from './ChatHeader'
 import MessageList from './MessageList'
 import MessageInput from './MessageInput'
 import { useChat } from '../../context/ChatContext'
-import { useAuth } from '../../context/AuthContext'
 import socket from '../../socket'
-import api from '../../api'
 
 const ChatArea = ({ roomChatId }) => {
   const { fetchMessages, setActiveRoomId, friends } = useChat()
-  const { user } = useAuth()
   const [roomInfo, setRoomInfo] = useState(null)
 
   useEffect(() => {
@@ -28,7 +25,12 @@ const ChatArea = ({ roomChatId }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <ChatHeader roomChatId={roomChatId} roomName={roomInfo?.name} avatar={roomInfo?.avatar} />
+      <ChatHeader
+        roomChatId={roomChatId}
+        roomName={roomInfo?.name}
+        avatar={roomInfo?.avatar}
+        statusOnline={roomInfo?.statusOnline}
+      />
       <MessageList roomChatId={roomChatId} />
       <MessageInput roomChatId={roomChatId} />
     </div>

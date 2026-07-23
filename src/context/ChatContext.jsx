@@ -17,6 +17,7 @@ export const ChatProvider = ({ children }) => {
   const [acceptList, setAcceptList] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [typingUsers, setTypingUsers] = useState({})
 
   const addMessage = useCallback((roomId, message) => {
     setMessages(prev => ({ ...prev, [roomId]: [...(prev[roomId] || []), message] }))
@@ -39,10 +40,7 @@ export const ChatProvider = ({ children }) => {
   }, [])
 
   const fetchConversations = useCallback(async () => {
-    try {
-      const res = await api.get('/rooms-chat')
-      setConversations(res.data.data.listRoomChat || [])
-    } catch {}
+    try { const res = await api.get('/rooms-chat'); setConversations(res.data.data.listRoomChat || []) } catch {}
   }, [])
 
   const fetchMessages = useCallback(async (roomId) => {
@@ -59,6 +57,22 @@ export const ChatProvider = ({ children }) => {
       addMessage(data.room_chat_id, data)
     })
 
+    socket.on('SERVER_RETURN_TYPING', ({ userId, fullName, roomChatId }) => {
+      setTypingUsers(prev => ({ ...prev, [roomChatId]: { userId, fullName } }))
+    })
+
+    socket.on('SERVER_RETURN_STOP_TYPING', ({ userId, roomChatId }) => {
+      setTypingUsers(prev => {
+        const cur = prev[roomChatId]
+        if (cur?.userId === userId) {
+          const next = { ...prev }
+          delete next[roomChatId]
+          return next
+        }
+        return prev
+      })
+    })
+
     socket.on('SERVER_RETURN_LENGTH_ACCEPT_FRIEND', () => { fetchAcceptList() })
     socket.on('SERVER_RETURN_INFO_ACCEPT_FRIEND', () => { fetchAcceptList() })
     socket.on('SERVER_RETURN_USER_ID_CANCEL_FRIEND', () => { fetchAcceptList(); fetchContacts() })
@@ -72,6 +86,8 @@ export const ChatProvider = ({ children }) => {
 
     return () => {
       socket.off('SERVER_RETURN_MESSAGE')
+      socket.off('SERVER_RETURN_TYPING')
+      socket.off('SERVER_RETURN_STOP_TYPING')
       socket.off('SERVER_RETURN_LENGTH_ACCEPT_FRIEND')
       socket.off('SERVER_RETURN_INFO_ACCEPT_FRIEND')
       socket.off('SERVER_RETURN_USER_ID_CANCEL_FRIEND')
@@ -82,14 +98,8 @@ export const ChatProvider = ({ children }) => {
   }, [addMessage, fetchAcceptList, fetchContacts, fetchFriends, fetchConversations])
 
   useEffect(() => {
-    if (socket.connected) {
-      fetchFriends()
-      fetchConversations()
-    }
-    socket.on('connect', () => {
-      fetchFriends()
-      fetchConversations()
-    })
+    if (socket.connected) { fetchFriends(); fetchConversations() }
+    socket.on('connect', () => { fetchFriends(); fetchConversations() })
     return () => { socket.off('connect') }
   }, [fetchFriends, fetchConversations])
 
@@ -105,6 +115,7 @@ export const ChatProvider = ({ children }) => {
       acceptList, setAcceptList,
       loading, setLoading,
       searchTerm, setSearchTerm,
+      typingUsers, setTypingUsers,
       fetchFriends, fetchContacts, fetchRequests, fetchAcceptList,
       fetchConversations, fetchMessages
     }}>

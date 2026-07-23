@@ -33,18 +33,18 @@ const UserHeader = () => {
   ]
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
-      <Space>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}>
+      <Space size={12}>
         <Badge dot color="#0AC286" offset={[-4, 36]}>
-          <Avatar size={40} src={user?.avatar} icon={<UserOutlined />} />
+          <Avatar size={40} src={user?.avatar} icon={<UserOutlined />} style={{ borderRadius: 14 }} />
         </Badge>
         <div>
-          <Text strong style={{ fontSize: 15 }}>{user?.fullName}</Text>
-          <div><Text type="secondary" style={{ fontSize: 12 }}>Đang hoạt động</Text></div>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: '#333', lineHeight: '20px' }}>{user?.fullName}</Text>
+          <div style={{ fontSize: 12, color: '#0AC286', lineHeight: '16px' }}>Đang hoạt động</div>
         </div>
       </Space>
       <Dropdown menu={{ items: menuItems, onClick: handleMenuClick }} trigger={['click']} placement="bottomRight">
-        <Button type="text" icon={<SettingOutlined style={{ fontSize: 20, color: '#666' }} />} />
+        <Button type="text" icon={<SettingOutlined style={{ fontSize: 22, color: '#666' }} />} style={{ width: 40, height: 40 }} />
       </Dropdown>
     </div>
   )

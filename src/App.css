@@ -2,13 +2,58 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: #f0f0f0;
+  background: #EDEDED;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root { height: 100vh; }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C8C8C8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #A8A8A8; }
 
-.ant-list-item:hover { background: #f5f5f5; }
+.ant-layout-sider { border-right: 1px solid #E8E8E8 !important; }
+.ant-layout-sider .ant-layout-sider-children { display: flex; flex-direction: column; }
+
+.ant-list-item {
+  border-block-end: none !important;
+  padding: 10px 16px !important;
+  transition: background 0.15s ease;
+}
+.ant-list-item:hover { background: #F5F5F5 !important; }
+.ant-list-item-meta-title { margin-bottom: 2px !important; }
+.ant-list-item-meta-description { line-height: 1.3 !important; }
+
 .ant-tabs-nav::before { border-bottom: none !important; }
+.ant-tabs-tab { padding: 8px 12px !important; transition: none !important; }
+.ant-tabs-tab-btn { font-weight: 500; }
+
+.ant-badge-dot { box-shadow: 0 0 0 2px #fff; }
+
+.ant-btn-dashed { border-color: #D9D9D9; color: #666; }
+.ant-btn-dashed:hover { border-color: #0068FF !important; color: #0068FF !important; }
+
+.ant-dropdown-menu-item { font-size: 14px; }
+
+.ant-avatar {
+  flex-shrink: 0;
+}
+
+.ant-spin-dot-item { background-color: #0068FF; }
+
+@keyframes typingDot {
+  0%, 40%, 100% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; transform: translateY(-2px); }
+}
+.typing-dots span {
+  display: inline-block;
+  animation: typingDot 1.4s infinite;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  color: #0068FF;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
