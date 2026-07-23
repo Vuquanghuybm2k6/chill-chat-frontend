@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
-import { List, Avatar, Badge, Button, Typography } from 'antd'
-import { UserOutlined, MessageOutlined, StopOutlined } from '@ant-design/icons'
+import { List, Avatar, Badge, Button, Typography, Modal } from 'antd'
+import { UserOutlined, MessageOutlined, StopOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../context/ChatContext'
 import socket from '../../socket'
@@ -13,8 +13,16 @@ const FriendList = () => {
 
   useEffect(() => { fetchFriends() }, [fetchFriends])
 
-  const handleUnfriend = (userId) => {
-    socket.emit('CLIENT_UNFRIEND', userId)
+  const handleUnfriend = (item) => {
+    Modal.confirm({
+      title: 'Hủy kết bạn',
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc muốn hủy kết bạn với ${item.fullName}?`,
+      okText: 'Xác nhận',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true },
+      onOk: () => socket.emit('CLIENT_UNFRIEND', item.id)
+    })
   }
 
   return (
@@ -36,7 +44,7 @@ const FriendList = () => {
             <Button icon={<MessageOutlined />} onClick={() => navigate(`/chat/${item.roomChatId}`)}>
               Nhắn tin
             </Button>
-            <Button icon={<StopOutlined />} danger onClick={() => handleUnfriend(item.id)} />
+            <Button icon={<StopOutlined />} danger onClick={() => handleUnfriend(item)} />
           </div>
         </List.Item>
       )}

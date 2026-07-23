@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { List, Avatar, Button, Typography, Space } from 'antd'
+import { List, Avatar, Button, Typography, Space, message as antMsg } from 'antd'
 import { UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import { useChat } from '../../context/ChatContext'
 import socket from '../../socket'
@@ -11,8 +11,9 @@ const AcceptList = () => {
 
   useEffect(() => { fetchAcceptList() }, [fetchAcceptList])
 
-  const handleAccept = (userId) => {
+  const handleAccept = (userId, fullName) => {
     socket.emit('CLIENT_ACCEPT_FRIEND', userId)
+    antMsg.success(`Đã kết bạn với ${fullName}`)
   }
 
   const handleRefuse = (userId) => {
@@ -31,7 +32,7 @@ const AcceptList = () => {
             description={<Text type="secondary">Đã gửi lời mời kết bạn cho bạn</Text>}
           />
           <Space>
-            <Button type="primary" icon={<CheckOutlined />} onClick={() => handleAccept(item.id)}>
+            <Button type="primary" icon={<CheckOutlined />} onClick={() => handleAccept(item.id, item.fullName)}>
               Đồng ý
             </Button>
             <Button icon={<CloseOutlined />} onClick={() => handleRefuse(item.id)}>

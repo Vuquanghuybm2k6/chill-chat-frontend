@@ -22,31 +22,19 @@ export const ChatProvider = ({ children }) => {
   }, [])
 
   const fetchFriends = useCallback(async () => {
-    try {
-      const res = await api.get('/users/friends')
-      setFriends(res.data.data.users || [])
-    } catch {}
+    try { const res = await api.get('/users/friends'); setFriends(res.data.data.users || []) } catch {}
   }, [])
 
   const fetchContacts = useCallback(async () => {
-    try {
-      const res = await api.get('/users/not-friend')
-      setContacts(res.data.data.users || [])
-    } catch {}
+    try { const res = await api.get('/users/not-friend'); setContacts(res.data.data.users || []) } catch {}
   }, [])
 
   const fetchRequests = useCallback(async () => {
-    try {
-      const res = await api.get('/users/request')
-      setRequestList(res.data.data.users || [])
-    } catch {}
+    try { const res = await api.get('/users/request'); setRequestList(res.data.data.users || []) } catch {}
   }, [])
 
   const fetchAcceptList = useCallback(async () => {
-    try {
-      const res = await api.get('/users/accept')
-      setAcceptList(res.data.data.users || [])
-    } catch {}
+    try { const res = await api.get('/users/accept'); setAcceptList(res.data.data.users || []) } catch {}
   }, [])
 
   const fetchConversations = useCallback(async () => {
@@ -64,11 +52,48 @@ export const ChatProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
+    if (!socket.connected) return
+
     socket.on('SERVER_RETURN_MESSAGE', (data) => {
       addMessage(data.room_chat_id, data)
     })
-    return () => { socket.off('SERVER_RETURN_MESSAGE') }
-  }, [addMessage])
+
+    socket.on('SERVER_RETURN_LENGTH_ACCEPT_FRIEND', () => {
+      fetchAcceptList()
+    })
+
+    socket.on('SERVER_RETURN_INFO_ACCEPT_FRIEND', () => {
+      fetchAcceptList()
+    })
+
+    socket.on('SERVER_RETURN_USER_ID_CANCEL_FRIEND', () => {
+      fetchAcceptList()
+      fetchContacts()
+    })
+
+    socket.on('SERVER_RETURN_UNFRIEND', () => {
+      fetchFriends()
+      fetchConversations()
+    })
+
+    socket.on('SERVER_RETURN_USER_ONLINE', (userId) => {
+      setFriends(prev => prev.map(f => f.id === userId ? { ...f, statusOnline: 'online' } : f))
+    })
+
+    socket.on('SERVER_RETURN_USER_OFFLINE', (userId) => {
+      setFriends(prev => prev.map(f => f.id === userId ? { ...f, statusOnline: 'offline' } : f))
+    })
+
+    return () => {
+      socket.off('SERVER_RETURN_MESSAGE')
+      socket.off('SERVER_RETURN_LENGTH_ACCEPT_FRIEND')
+      socket.off('SERVER_RETURN_INFO_ACCEPT_FRIEND')
+      socket.off('SERVER_RETURN_USER_ID_CANCEL_FRIEND')
+      socket.off('SERVER_RETURN_UNFRIEND')
+      socket.off('SERVER_RETURN_USER_ONLINE')
+      socket.off('SERVER_RETURN_USER_OFFLINE')
+    }
+  }, [addMessage, fetchAcceptList, fetchContacts, fetchFriends, fetchConversations])
 
   return (
     <ChatContext.Provider value={{

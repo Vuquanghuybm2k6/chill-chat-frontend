@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Layout, Tabs } from 'antd'
-import { MessageOutlined, TeamOutlined } from '@ant-design/icons'
+import { Layout, Tabs, Button } from 'antd'
+import { MessageOutlined, TeamOutlined, PlusOutlined } from '@ant-design/icons'
 import { Routes, Route } from 'react-router-dom'
 import { ChatProvider } from '../context/ChatContext'
 import UserHeader from './Sidebar/UserHeader'
@@ -8,6 +8,9 @@ import SearchBar from './Sidebar/SearchBar'
 import ConversationList from './Sidebar/ConversationList'
 import ChatArea from './Chat/ChatArea'
 import ContactList from './Contacts/ContactList'
+import GroupChatModal from './Chat/GroupChatModal'
+import UserInfo from '../pages/UserInfo'
+import UserEdit from '../pages/UserEdit'
 
 const { Sider, Content } = Layout
 
@@ -21,6 +24,7 @@ const EmptyChat = () => (
 
 const MainLayout = () => {
   const [tabKey, setTabKey] = useState('messages')
+  const [groupModalOpen, setGroupModalOpen] = useState(false)
 
   const tabItems = [
     { key: 'messages', label: <span><MessageOutlined /> Tin nhắn</span> },
@@ -44,16 +48,24 @@ const MainLayout = () => {
             {tabKey === 'messages' && <ConversationList />}
             {tabKey === 'contacts' && <ContactList />}
           </div>
+          <div style={{ padding: '12px 16px', borderTop: '1px solid #f0f0f0' }}>
+            <Button type="dashed" block icon={<PlusOutlined />} onClick={() => setGroupModalOpen(true)}>
+              Tạo phòng chat
+            </Button>
+          </div>
         </Sider>
         <Layout>
           <Content style={{ background: '#f0f0f0', display: 'flex', flexDirection: 'column' }}>
             <Routes>
               <Route index element={<EmptyChat />} />
               <Route path="chat/:roomChatId" element={<ChatAreaWrapper />} />
+              <Route path="user/info" element={<UserInfo />} />
+              <Route path="user/edit" element={<UserEdit />} />
             </Routes>
           </Content>
         </Layout>
       </Layout>
+      <GroupChatModal open={groupModalOpen} onClose={() => setGroupModalOpen(false)} />
     </ChatProvider>
   )
 }
